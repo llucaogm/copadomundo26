@@ -1078,7 +1078,8 @@ async function bpRegister(){
   if(!email||!email.includes('@')){msg.style.color='var(--vermelho)';msg.textContent='Email inválido.';return}
   if(senha.length<6){msg.style.color='var(--vermelho)';msg.textContent='Senha precisa ter pelo menos 6 caracteres.';return}
   btn.disabled=true;btn.textContent='Criando...';
-  const{error}=await sbR.auth.signUp({email,password:senha,options:{data:{nome}}});
+  const confirmUrl=location.origin+location.pathname.replace(/[^/]*$/,'')+'confirm.html';
+  const{error}=await sbR.auth.signUp({email,password:senha,options:{data:{nome},emailRedirectTo:confirmUrl}});
   if(error){
     msg.style.color='var(--vermelho)';
     msg.textContent=error.message.toLowerCase().includes('already')?'Email já cadastrado. Faz login.':'Erro: '+error.message;
