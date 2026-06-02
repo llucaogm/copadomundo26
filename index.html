@@ -438,12 +438,53 @@ h2.sec-title{
 .bp-sala-row-tipo{font-family:'VT323',monospace;font-size:.95rem;color:var(--muted)}
 .bp-sala-row-codigo{font-family:'Bungee',sans-serif;font-size:.75rem;background:var(--ink);color:var(--amarelo);padding:2px 8px;border:1.5px solid var(--ink);flex-shrink:0}
 .bp-sala-row-arrow{color:var(--muted);font-family:'Bungee',sans-serif;font-size:.9rem;flex-shrink:0}
+/* ─── SITE LOGIN OVERLAY ─── */
+#siteLoginOverlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:var(--ink);background-image:repeating-linear-gradient(-45deg,rgba(0,156,59,.2) 0 60px,rgba(255,217,26,.1) 60px 120px,rgba(0,39,118,.2) 120px 180px)}
+.sl-box{background:var(--cream);border:4px solid var(--amarelo);box-shadow:12px 12px 0 var(--amarelo);padding:36px 40px;max-width:400px;width:90%;text-align:center;animation:popIn .5s cubic-bezier(.18,.9,.4,1.2) both}
+.sl-logo{height:80px;width:auto;margin:0 auto 16px;display:block;filter:drop-shadow(3px 3px 0 rgba(0,0,0,.4))}
+.sl-sub{font-family:'Special Elite',monospace;color:var(--muted);font-size:.88rem;margin-bottom:20px;line-height:1.5}
+.sl-tabs{display:flex;border-bottom:2.5px solid var(--ink);margin-bottom:20px}
+.sl-tab{flex:1;padding:9px;background:none;border:none;cursor:pointer;font-family:'Anton',sans-serif;font-size:.8rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);transition:color .15s}
+.sl-tab.active{color:var(--ink);border-bottom:3px solid var(--vermelho);margin-bottom:-2.5px}
+/* ─── NAV USER BUTTON ─── */
+.nav-user-btn{padding:10px 14px;background:var(--ink);border:none;border-left:2px solid #2a2018;color:var(--muted);cursor:pointer;font-family:'Anton',sans-serif;font-size:.72rem;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px}
+.nav-user-btn:hover{background:#2a2018;color:var(--amarelo)}
+.nav-user-name{font-size:.55rem;color:var(--amarelo);letter-spacing:.5px;max-width:70px;overflow:hidden;text-overflow:ellipsis}
 .bp-link-btn{background:none;border:none;color:var(--azul);font-family:'Special Elite',monospace;font-size:.82rem;cursor:pointer;padding:6px 0;text-decoration:underline;display:block;text-align:left}
 .bp-link-btn:hover{color:var(--vermelho)}
 @media(max-width:600px){.bp-rank-pos{flex-basis:auto;font-size:.72rem}.bp-salas-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
+
+<!-- ── LOGIN OVERLAY ── -->
+<div id="siteLoginOverlay">
+  <div class="sl-box">
+    <img src="logo.png" alt="Caô da Copa" class="sl-logo">
+    <p class="sl-sub">Entre pra acompanhar a Copa</p>
+    <div class="sl-tabs">
+      <button class="sl-tab active" onclick="slSwitchTab('login',this)">Entrar</button>
+      <button class="sl-tab" onclick="slSwitchTab('register',this)">Criar conta</button>
+    </div>
+    <div id="slTabLogin">
+      <input type="email" id="slEmail" class="bp-input" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')slLogin()">
+      <input type="password" id="slSenha" class="bp-input" placeholder="Senha" onkeydown="if(event.key==='Enter')slLogin()">
+      <button class="bp-btn-primary" id="slLoginBtn" onclick="slLogin()">Entrar</button>
+      <button class="bp-link-btn" onclick="slEsqueciSenha()">Esqueci a senha</button>
+      <div id="slLoginMsg" class="bp-msg"></div>
+    </div>
+    <div id="slTabRegister" style="display:none">
+      <input type="text" id="slRegNome" class="bp-input" placeholder="Seu nome no ranking" maxlength="30" onkeydown="if(event.key==='Enter')slRegister()">
+      <input type="email" id="slRegEmail" class="bp-input" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')slRegister()">
+      <input type="password" id="slRegSenha" class="bp-input" placeholder="Senha (mín. 6 caracteres)" onkeydown="if(event.key==='Enter')slRegister()">
+      <button class="bp-btn-primary" id="slRegBtn" onclick="slRegister()">Criar conta</button>
+      <div id="slRegMsg" class="bp-msg"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── APP ── -->
+<div id="siteApp" style="display:none">
 
 <header>
   <div class="hdr-tape l"></div>
@@ -466,6 +507,9 @@ h2.sec-title{
   <button onclick="showTab('jogos',this)"><span class="nav-ico">📅</span><span class="nav-lbl">Jogos</span></button>
   <button onclick="showTab('resumao',this)"><span class="nav-ico">📰</span><span class="nav-lbl">Resumão</span></button>
   <button onclick="showTab('bolao',this)"><span class="nav-ico">🎯</span><span class="nav-lbl">Bolão</span></button>
+  <button class="nav-user-btn" onclick="slLogout()" title="Sair">
+    <span>👤</span><span class="nav-user-name" id="navUserName">...</span>
+  </button>
 </nav>
 
 <div class="content">
@@ -616,6 +660,8 @@ h2.sec-title{
 
 </div>
 
+</div><!-- /#siteApp -->
+
 <div class="toast-wrap" id="toastWrap"></div>
 
 <script>
@@ -628,6 +674,110 @@ const SB_R_URL = 'https://tyazqnpveylqpdmheavv.supabase.co';
 const SB_R_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5YXpxbnB2ZXlscXBkbWhlYXZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NjI5OTMsImV4cCI6MjA5NTUzODk5M30.jRtNnPWEaXJb3L_oPnYvGoKsQnk22v0bJiscukV9u7Q';
 const sbR = supabase.createClient(SB_R_URL, SB_R_KEY);
 const sb = sbR;
+
+/* ─── AUTH GLOBAL ─── */
+let currentUser=null, currentProfile=null;
+
+async function slLoadProfile(){
+  const{data}=await sbR.from('profiles').select('*').eq('id',currentUser.id).maybeSingle();
+  if(data){currentProfile=data}
+  else{
+    const nome=currentUser.user_metadata?.nome||currentUser.email.split('@')[0]||'Anônimo';
+    const{data:np}=await sbR.from('profiles').insert({id:currentUser.id,nome}).select().maybeSingle();
+    currentProfile=np||{id:currentUser.id,nome,is_admin:false};
+  }
+  const el=document.getElementById('navUserName');
+  if(el) el.textContent=currentProfile?.nome||'';
+}
+
+function slShowApp(){
+  document.getElementById('siteLoginOverlay').style.display='none';
+  document.getElementById('siteApp').style.display='block';
+  init();
+}
+
+function slShowOverlay(){
+  document.getElementById('siteLoginOverlay').style.display='flex';
+  document.getElementById('siteApp').style.display='none';
+}
+
+function slSwitchTab(tab,btn){
+  document.querySelectorAll('.sl-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('slTabLogin').style.display=tab==='login'?'block':'none';
+  document.getElementById('slTabRegister').style.display=tab==='register'?'block':'none';
+}
+
+async function slLogin(){
+  const btn=document.getElementById('slLoginBtn');
+  const msg=document.getElementById('slLoginMsg');
+  const email=document.getElementById('slEmail').value.trim().toLowerCase();
+  const senha=document.getElementById('slSenha').value;
+  msg.textContent='';
+  if(!email||!senha){msg.style.color='var(--vermelho)';msg.textContent='Preenche email e senha.';return}
+  btn.disabled=true;btn.textContent='Entrando...';
+  const{error}=await sbR.auth.signInWithPassword({email,password:senha});
+  if(error){
+    msg.style.color='var(--vermelho)';
+    msg.textContent=error.message.toLowerCase().includes('invalid')?'Email ou senha incorretos.':'Erro: '+error.message;
+    btn.disabled=false;btn.textContent='Entrar';
+  }
+}
+
+async function slRegister(){
+  const btn=document.getElementById('slRegBtn');
+  const msg=document.getElementById('slRegMsg');
+  const nome=document.getElementById('slRegNome').value.trim();
+  const email=document.getElementById('slRegEmail').value.trim().toLowerCase();
+  const senha=document.getElementById('slRegSenha').value;
+  msg.textContent='';
+  if(!nome){msg.style.color='var(--vermelho)';msg.textContent='Coloca seu nome.';return}
+  if(!email||!email.includes('@')){msg.style.color='var(--vermelho)';msg.textContent='Email inválido.';return}
+  if(senha.length<6){msg.style.color='var(--vermelho)';msg.textContent='Senha precisa ter pelo menos 6 caracteres.';return}
+  btn.disabled=true;btn.textContent='Criando...';
+  const confirmUrl=location.origin+location.pathname.replace(/[^/]*$/,'')+'confirm.html';
+  const{error}=await sbR.auth.signUp({email,password:senha,options:{data:{nome},emailRedirectTo:confirmUrl}});
+  if(error){
+    msg.style.color='var(--vermelho)';
+    msg.textContent=error.message.toLowerCase().includes('already')?'Email já cadastrado. Faz login.':'Erro: '+error.message;
+    btn.disabled=false;btn.textContent='Criar conta';
+  }else{
+    msg.style.color='var(--verde-d)';
+    msg.textContent='✓ Conta criada! Confirma o email se necessário, depois entra.';
+    btn.textContent='Feito!';
+  }
+}
+
+async function slEsqueciSenha(){
+  const email=document.getElementById('slEmail').value.trim().toLowerCase();
+  const msg=document.getElementById('slLoginMsg');
+  if(!email){msg.style.color='var(--vermelho)';msg.textContent='Digite seu email acima primeiro.';return}
+  await sbR.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});
+  msg.style.color='var(--verde-d)';msg.textContent='✓ Link de recuperação enviado!';
+}
+
+async function slLogout(){
+  await sbR.auth.signOut();
+  currentUser=null;currentProfile=null;
+  slShowOverlay();
+}
+
+// Inicializa auth ao carregar a página
+(async()=>{
+  sbR.auth.onAuthStateChange(async(event,session)=>{
+    if(event==='SIGNED_IN'&&session?.user){
+      currentUser=session.user;
+      await slLoadProfile();
+      slShowApp();
+    }else if(event==='SIGNED_OUT'){
+      currentUser=null;currentProfile=null;
+      slShowOverlay();
+    }
+  });
+  const{data:{user}}=await sbR.auth.getUser();
+  if(user){currentUser=user;await slLoadProfile();slShowApp()}
+  else slShowOverlay();
+})();
 
 let teams={}, groups={}, venues={}, matches=[];
 let resumoes=[];
@@ -661,6 +811,7 @@ async function init(){
   setupRealtime();
   renderAll();
 }
+// Chamado pelo IIFE de auth — não chama no load direto
 
 async function loadAll(){
   try{
@@ -840,7 +991,7 @@ function matchCard(m){
     <div class="mc-inner">
       <div class="mc-meta"><div class="mc-time">${time}</div><div><span class="stage-badge ${sc}">${sl}</span></div><div class="mc-venue">${v?v.city:''}</div></div>
       <div class="mc-teams"><div class="team-home">${hDisp}</div>${scoreHtml}<div class="team-away">${aDisp}</div></div>
-      <div class="mc-actions"><button class="btn-edit" onclick="toggleEditor(${m.id})" title="Editar placar">✏️</button></div>
+      <div class="mc-actions">${currentProfile?.is_admin?`<button class="btn-edit" onclick="toggleEditor(${m.id})" title="Editar placar">✏️</button>`:''}</div>
     </div>
     <div class="editor" id="ed-${m.id}">
       <span class="sc-label">${fimg(ht,'sm')}</span>
@@ -873,6 +1024,7 @@ function goToMatch(id){
 }
 
 async function saveMatch(id){
+  if(!currentProfile?.is_admin){toast('Sem permissão de admin','err');return}
   const hs=document.getElementById('hs-'+id)?.value;
   const as_=document.getElementById('as-'+id)?.value;
   const st=document.getElementById('st-'+id)?.value;
@@ -890,6 +1042,7 @@ async function saveMatch(id){
 }
 
 async function resetMatch(id){
+  if(!currentProfile?.is_admin){toast('Sem permissão de admin','err');return}
   const upd={home_score:null,away_score:null,home_penalties:null,away_penalties:null,status:'scheduled'};
   const {error}=await sb.from('wc_matches').update(upd).eq('id',id);
   if(!error){const i=matches.findIndex(m=>m.id===id);if(i>=0) Object.assign(matches[i],upd);toggleEditor(id);renderAll();toast('Placar limpo','ok')}
@@ -997,23 +1150,16 @@ let bpUser=null,bpProfile=null,bpSalaAtual=null,bpJogos=[],bpMeusPalpites={},bpI
 async function bpInit(){
   if(bpInited){bpRefreshScreen();return}
   bpInited=true;
-  sbR.auth.onAuthStateChange(async(event,session)=>{
-    if(event==='SIGNED_IN'&&session?.user){
-      bpUser=session.user;
-      await bpLoadProfile();
-      bpShowTela('salas');
-      if(activeTab!=='bolao'){
-        const btn=document.querySelector('nav button[onclick*="bolao"]');
-        if(btn) showTab('bolao',btn);
-      }
-    }else if(event==='SIGNED_OUT'){
-      bpUser=null;bpProfile=null;bpSalaAtual=null;
-      if(activeTab==='bolao') bpShowTela('login');
-    }
-  });
-  const{data:{user}}=await sbR.auth.getUser();
-  if(user){bpUser=user;await bpLoadProfile();bpShowTela('salas')}
-  else bpShowTela('login');
+  // Usa auth global — usuário sempre logado ao chegar aqui
+  if(currentUser&&currentProfile){
+    bpUser=currentUser;bpProfile=currentProfile;
+    const el=document.getElementById('bpUserNome');
+    if(el) el.textContent=bpProfile.nome;
+    bpShowTela('salas');
+    bpLoadMinhasSalas();
+  }else{
+    bpShowTela('login');
+  }
 }
 
 function bpRefreshScreen(){
@@ -1092,11 +1238,7 @@ async function bpEsqueciSenha(){
   msg.style.color='var(--verde-d)';msg.textContent='✓ Link de recuperação enviado!';
 }
 
-async function bpLogout(){
-  await sbR.auth.signOut();
-  bpUser=null;bpProfile=null;bpSalaAtual=null;bpInited=false;
-  bpShowTela('login');
-}
+async function bpLogout(){slLogout()}
 
 async function bpEntrarGeral(){
   const{data:sala}=await sbR.from('boloes').select('*').eq('codigo_acesso','GERAL2026').maybeSingle();
@@ -1288,7 +1430,7 @@ function toast(msg,type){
   setTimeout(()=>{t.style.transition='all .3s';t.style.opacity='0';t.style.transform='translateX(120px) rotate(8deg)';setTimeout(()=>t.remove(),300)},3000);
 }
 
-init();
+// init() é chamado por slShowApp() após autenticação confirmada
 </script>
 </body>
 </html>
