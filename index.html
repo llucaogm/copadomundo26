@@ -91,15 +91,12 @@ header::after{
 .rt-dot.on::after{animation-delay:1.2s}
 @keyframes ring{0%{transform:scale(.6);opacity:.9}100%{transform:scale(2.6);opacity:0}}
 
-.title-wrap{position:relative;display:inline-block;z-index:3}
-header h1{
-  font-family:'Bungee',sans-serif;font-size:clamp(2.6rem,7vw,5.2rem);letter-spacing:2px;line-height:.95;
-  text-transform:uppercase;color:var(--cream);-webkit-text-stroke:3px var(--ink);
-  text-shadow:5px 5px 0 var(--vermelho),10px 10px 0 var(--azul),14px 14px 0 var(--ink);
-  transform:rotate(-2deg);display:inline-block;
+.title-wrap{position:relative;display:flex;justify-content:center;align-items:center;z-index:3}
+.logo-img{
+  height:clamp(90px,18vw,160px);width:auto;
+  display:block;
+  filter:drop-shadow(4px 4px 0 rgba(0,0,0,.5));
 }
-header h1 .ball{display:inline-block;animation:kick 3s ease-in-out infinite;text-shadow:none;-webkit-text-stroke:0;transform-origin:center}
-@keyframes kick{0%,100%{transform:rotate(0) translateY(0)}45%{transform:rotate(-15deg) translateY(-12px)}55%{transform:rotate(15deg) translateY(-12px)}}
 
 .subtitle{
   margin-top:24px;display:inline-block;position:relative;z-index:3;
@@ -397,7 +394,7 @@ h2.sec-title{
     <span id="rtLabel">conectando...</span>
   </div>
   <div class="title-wrap">
-    <h1><span class="ball">⚽</span> Copa 2026</h1>
+    <img src="logo.png" alt="Caô da Copa" class="logo-img">
   </div>
   <br>
   <div class="subtitle">EUA · CANADÁ · MÉXICO <b>·</b> 11 JUN — 26 JUL 2026</div>
