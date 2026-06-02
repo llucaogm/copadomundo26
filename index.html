@@ -431,6 +431,13 @@ h2.sec-title{
 .bp-you{font-family:'Special Elite',monospace;font-size:.72rem;color:var(--azul);text-transform:none;letter-spacing:0;font-style:italic;font-weight:normal}
 .bp-rank-pts{font-family:'Bungee',sans-serif;font-size:1.1rem;color:var(--vermelho);text-align:right;white-space:nowrap;flex-shrink:0}
 .bp-rank-pts small{font-family:'Anton',sans-serif;font-size:.68rem;color:var(--muted);display:block;letter-spacing:1px}
+.bp-salas-list{display:flex;flex-direction:column;gap:10px}
+.bp-sala-row{display:flex;align-items:center;gap:14px;background:var(--cream);border:2.5px solid var(--ink);padding:12px 16px;box-shadow:3px 3px 0 var(--ink);cursor:pointer;transition:transform .15s,box-shadow .15s}
+.bp-sala-row:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--vermelho)}
+.bp-sala-row-nome{font-family:'Anton',sans-serif;font-size:.92rem;letter-spacing:1px;text-transform:uppercase;flex:1}
+.bp-sala-row-tipo{font-family:'VT323',monospace;font-size:.95rem;color:var(--muted)}
+.bp-sala-row-codigo{font-family:'Bungee',sans-serif;font-size:.75rem;background:var(--ink);color:var(--amarelo);padding:2px 8px;border:1.5px solid var(--ink);flex-shrink:0}
+.bp-sala-row-arrow{color:var(--muted);font-family:'Bungee',sans-serif;font-size:.9rem;flex-shrink:0}
 .bp-link-btn{background:none;border:none;color:var(--azul);font-family:'Special Elite',monospace;font-size:.82rem;cursor:pointer;padding:6px 0;text-decoration:underline;display:block;text-align:left}
 .bp-link-btn:hover{color:var(--vermelho)}
 @media(max-width:600px){.bp-rank-pos{flex-basis:auto;font-size:.72rem}.bp-salas-grid{grid-template-columns:1fr}}
@@ -581,6 +588,11 @@ h2.sec-title{
           <input type="text" id="bpNomeSala" class="bp-input" placeholder="Nome (ex: Rep da Vila)" maxlength="40" onkeydown="if(event.key==='Enter')bpCriarSala()">
           <button class="bp-btn-primary" onclick="bpCriarSala()">Criar minha sala</button>
         </div>
+      </div>
+
+      <div id="bpMinhasSalas" style="margin-top:28px">
+        <div style="font-family:'Anton',sans-serif;font-size:.75rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:12px">📋 Minhas salas</div>
+        <div id="bpMinhasSalasList"><div class="bp-loading"><div class="spinner"></div><div>Carregando suas salas...</div></div></div>
       </div>
     </div>
 
@@ -1035,6 +1047,7 @@ async function bpLoadProfile(){
   }
   const el=document.getElementById('bpUserNome');
   if(el) el.textContent=bpProfile?.nome||bpUser.email;
+  bpLoadMinhasSalas();
 }
 
 async function bpLogin(){
@@ -1113,6 +1126,7 @@ async function bpCriarSala(){
   const{data:sala,error}=await sbR.from('boloes').insert({nome,codigo_acesso:codigo,criador_id:bpProfile.id,tipo:'privado'}).select().maybeSingle();
   if(error){toast('Erro ao criar: '+error.message,'err');return}
   toast('Sala criada! Código: '+codigo,'ok');
+  await bpLoadMinhasSalas();
   await bpEntrarNaSala(sala);
 }
 
@@ -1120,6 +1134,7 @@ async function bpEntrarNaSala(sala){
   if(!bpProfile){toast('Faça login primeiro','err');return}
   bpSalaAtual=sala;
   await sbR.from('membros_bolao').upsert({bolao_id:sala.id,user_id:bpProfile.id},{ignoreDuplicates:true});
+  bpLoadMinhasSalas();
   document.getElementById('bpSalaNome').textContent=sala.nome;
   document.getElementById('bpSalaCodigo').textContent=sala.tipo==='privado'?`🔑 Código: ${sala.codigo_acesso}`:'🌎 Bolão Geral · aberto a todos';
   bpShowTela('sala');
@@ -1136,7 +1151,33 @@ async function bpCopiarCodigo(){
   catch{toast('Código: '+bpSalaAtual.codigo_acesso,'ok')}
 }
 
-function bpVoltarSalas(){bpSalaAtual=null;bpShowTela('salas')}
+function bpVoltarSalas(){bpSalaAtual=null;bpShowTela('salas');bpLoadMinhasSalas()}
+
+async function bpLoadMinhasSalas(){
+  const el=document.getElementById('bpMinhasSalasList');
+  if(!el||!bpProfile) return;
+  el.innerHTML='<div class="bp-loading"><div class="spinner"></div><div>Carregando...</div></div>';
+  const{data:membros}=await sbR.from('membros_bolao').select('bolao_id,boloes(id,nome,codigo_acesso,tipo)').eq('user_id',bpProfile.id);
+  const salas=(membros||[]).map(m=>m.boloes).filter(Boolean);
+  if(!salas.length){
+    el.innerHTML='<div class="bp-empty" style="padding:22px">Você ainda não entrou em nenhuma sala.<br>Entra no Bolão Geral ou usa um código acima.</div>';
+    return;
+  }
+  el.innerHTML=`<div class="bp-salas-list">${salas.map(s=>{
+    const privado=s.tipo==='privado';
+    return`<div class="bp-sala-row" onclick="bpEntrarNaSalaById('${s.id}')">
+      <div class="bp-sala-row-nome">${escHtml(s.nome)}</div>
+      <div class="bp-sala-row-tipo">${privado?'privada':'pública'}</div>
+      ${privado?`<div class="bp-sala-row-codigo">${s.codigo_acesso}</div>`:''}
+      <div class="bp-sala-row-arrow">→</div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+async function bpEntrarNaSalaById(id){
+  const{data:sala}=await sbR.from('boloes').select('*').eq('id',id).maybeSingle();
+  if(sala) await bpEntrarNaSala(sala);
+}
 
 function bpShowSub(sub,btn){
   document.querySelectorAll('.bp-sub-btn').forEach(b=>b.classList.remove('active'));
