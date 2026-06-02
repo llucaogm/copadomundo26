@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin · Resumões Copa 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@500;700&family=Bungee&family=Special+Elite&family=VT323&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+:root{
+  --paper:#f3e6c4;--paper2:#ede0b6;--paper-dark:#d9c590;
+  --ink:#1a1410;--ink2:#3a2d1f;--muted:#7a6a4e;
+  --verde:#009c3b;--verde-d:#006d29;--amarelo:#ffd91a;
+  --azul:#002776;--vermelho:#d52941;--cream:#fff5d9;
+  --tape:rgba(255,217,26,.85);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:var(--paper);color:var(--ink);font-family:'Archivo',system-ui,sans-serif;min-height:100vh;font-weight:500}
+body{background-image:radial-gradient(rgba(26,20,16,.18) 1px, transparent 1.4px);background-size:14px 14px}
+
+/* ─── LOGIN ─── */
+#loginScreen{
+  position:fixed;inset:0;background:var(--ink);
+  display:flex;align-items:center;justify-content:center;z-index:1000;
+}
+.login-box{
+  background:var(--cream);border:4px solid var(--amarelo);
+  box-shadow:8px 8px 0 var(--amarelo);
+  padding:40px 44px;text-align:center;max-width:380px;width:90%;
+}
+.login-box h1{font-family:'Bungee',sans-serif;font-size:1.6rem;color:var(--ink);text-transform:uppercase;letter-spacing:2px;margin-bottom:6px}
+.login-box p{font-family:'Special Elite',monospace;color:var(--muted);font-size:.9rem;margin-bottom:26px}
+.login-input{
+  width:100%;padding:14px 16px;background:var(--paper);border:2.5px solid var(--ink);
+  color:var(--ink);font-family:'Special Elite',monospace;font-size:1.1rem;
+  box-shadow:3px 3px 0 var(--ink);letter-spacing:4px;text-align:center;
+  margin-bottom:16px;
+}
+.login-input:focus{outline:none;background:var(--amarelo)}
+.login-btn{
+  width:100%;padding:14px;background:var(--verde);color:var(--cream);
+  border:2.5px solid var(--ink);cursor:pointer;
+  font-family:'Anton',sans-serif;font-size:1.1rem;letter-spacing:2px;text-transform:uppercase;
+  box-shadow:4px 4px 0 var(--ink);transition:all .15s;
+}
+.login-btn:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--azul)}
+.login-err{color:var(--vermelho);font-family:'Special Elite',monospace;font-size:.88rem;margin-top:12px;min-height:20px}
+
+/* ─── HEADER ─── */
+header{
+  background:repeating-linear-gradient(-45deg, var(--verde) 0 40px, var(--amarelo) 40px 80px, var(--azul) 80px 120px);
+  border-bottom:5px solid var(--ink);padding:26px 24px 22px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+}
+.hdr-title{font-family:'Bungee',sans-serif;font-size:1.6rem;color:var(--cream);-webkit-text-stroke:2px var(--ink);text-shadow:4px 4px 0 var(--vermelho),7px 7px 0 var(--ink);letter-spacing:2px;text-transform:uppercase}
+.hdr-sub{font-family:'Special Elite',monospace;font-size:.82rem;color:rgba(255,245,217,.8);letter-spacing:1px;margin-top:4px}
+.btn-logout{padding:9px 18px;background:var(--ink);color:var(--amarelo);border:2px solid var(--amarelo);cursor:pointer;font-family:'Anton',sans-serif;font-size:.85rem;letter-spacing:1.5px;text-transform:uppercase;box-shadow:3px 3px 0 var(--amarelo)}
+.btn-logout:hover{background:var(--vermelho);border-color:var(--ink);color:var(--cream)}
+
+/* ─── NAV TABS ─── */
+.admin-nav{display:flex;background:var(--ink);border-bottom:4px solid var(--amarelo);overflow-x:auto}
+.admin-nav button{
+  flex:1;min-width:140px;padding:16px 18px;display:flex;align-items:center;justify-content:center;gap:8px;
+  background:var(--ink);border:none;border-right:2px solid #2a2018;color:var(--paper);cursor:pointer;
+  font-family:'Anton',sans-serif;font-size:.95rem;text-transform:uppercase;letter-spacing:1.5px;
+  position:relative;transition:all .18s;white-space:nowrap;
+}
+.admin-nav button:hover{background:#2a2018;color:var(--amarelo)}
+.admin-nav button.active{background:var(--amarelo);color:var(--ink)}
+.admin-nav .badge{
+  background:var(--vermelho);color:var(--cream);
+  font-family:'Bungee',sans-serif;font-size:.72rem;
+  padding:2px 7px;border:1.5px solid var(--ink);border-radius:2px;
+}
+.admin-nav button.active .badge{background:var(--ink);color:var(--amarelo)}
+
+/* ─── CONTENT ─── */
+.content{max-width:1000px;margin:0 auto;padding:32px 20px 60px}
+
+/* ─── NOVO RESUMÃO ─── */
+.form-section{
+  background:var(--cream);border:3px solid var(--ink);
+  box-shadow:6px 6px 0 var(--ink);padding:24px 26px;
+  margin-bottom:28px;position:relative;
+}
+.form-section::before{
+  content:"NOVO RESUMÃO";position:absolute;top:-14px;left:18px;
+  background:var(--verde);color:var(--cream);
+  font-family:'Bungee',sans-serif;font-size:.78rem;letter-spacing:3px;padding:3px 14px;border:2px solid var(--ink);
+}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-full{grid-column:1/-1}
+label{display:block;font-family:'Anton',sans-serif;font-size:.8rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink2);margin-bottom:6px}
+.form-input,.form-select,.form-textarea{
+  width:100%;padding:10px 14px;background:var(--paper);border:2px solid var(--ink);
+  color:var(--ink);font-family:'Special Elite',monospace;font-size:.95rem;
+  box-shadow:3px 3px 0 var(--ink);
+}
+.form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;background:var(--amarelo);box-shadow:3px 3px 0 var(--vermelho)}
+.form-textarea{min-height:160px;resize:vertical;line-height:1.6}
+.form-actions{display:flex;gap:12px;margin-top:16px;flex-wrap:wrap}
+.btn-primary{padding:11px 22px;background:var(--verde);color:var(--cream);border:2px solid var(--ink);cursor:pointer;font-family:'Anton',sans-serif;font-size:.95rem;letter-spacing:1.5px;text-transform:uppercase;box-shadow:3px 3px 0 var(--ink);transition:all .15s}
+.btn-primary:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--azul);background:var(--verde-d)}
+.btn-secondary{padding:11px 18px;background:var(--paper);color:var(--ink2);border:2px solid var(--ink);cursor:pointer;font-family:'Anton',sans-serif;font-size:.85rem;letter-spacing:1.5px;box-shadow:2px 2px 0 var(--ink)}
+.score-row{display:flex;gap:10px;align-items:center}
+.score-inp{width:70px;padding:10px;text-align:center;background:var(--paper);border:2px solid var(--ink);color:var(--ink);font-family:'Bungee',sans-serif;font-size:1.3rem;box-shadow:3px 3px 0 var(--ink)}
+.score-inp:focus{outline:none;background:var(--amarelo)}
+.score-sep{font-family:'Bungee',sans-serif;font-size:1.4rem;color:var(--vermelho)}
+
+/* ─── ADMIN CARD ─── */
+.admin-card{
+  background:var(--cream);border:3px solid var(--ink);
+  box-shadow:5px 5px 0 var(--ink);margin-bottom:18px;
+  position:relative;overflow:hidden;
+  animation:slideIn .3s ease both;
+}
+@keyframes slideIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.admin-card.pendente{border-left:6px solid var(--amarelo)}
+.admin-card.publicado{border-left:6px solid var(--verde)}
+.admin-card.rejeitado{border-left:6px solid var(--vermelho);opacity:.7}
+
+.ac-header{background:var(--paper2);padding:12px 16px;border-bottom:2px dashed var(--ink);display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.ac-title{font-family:'Bungee',sans-serif;font-size:1rem;color:var(--ink);text-transform:uppercase;letter-spacing:.8px;flex:1}
+.ac-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;flex-shrink:0}
+.ac-status{font-family:'Anton',sans-serif;font-size:.7rem;text-transform:uppercase;letter-spacing:1.5px;padding:3px 9px;border:2px solid var(--ink)}
+.status-pendente{background:var(--amarelo);color:var(--ink)}
+.status-publicado{background:var(--verde);color:var(--cream)}
+.status-rejeitado{background:var(--vermelho);color:var(--cream)}
+.ac-date{font-family:'VT323',monospace;color:var(--muted);font-size:1rem}
+
+.ac-game{padding:10px 16px;background:var(--ink);color:var(--cream);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.ac-score{font-family:'Bungee',sans-serif;font-size:1.3rem;color:var(--amarelo)}
+.ac-teams{font-family:'Anton',sans-serif;font-size:.9rem;letter-spacing:1px;text-transform:uppercase}
+.ac-fase{font-family:'VT323',monospace;font-size:.95rem;color:rgba(255,217,26,.7);margin-left:auto}
+
+.ac-body{padding:14px 16px}
+.ac-texto-view{font-family:'Special Elite',monospace;font-size:.92rem;color:var(--ink2);line-height:1.7;white-space:pre-line;max-height:120px;overflow:hidden;position:relative}
+.ac-texto-view.expanded{max-height:none}
+.ac-texto-view:not(.expanded)::after{content:"";position:absolute;bottom:0;left:0;right:0;height:40px;background:linear-gradient(transparent, var(--cream))}
+.btn-expand{font-family:'Special Elite',monospace;font-size:.8rem;color:var(--azul);background:none;border:none;cursor:pointer;padding:6px 0;text-decoration:underline}
+
+.ac-edit-area{display:none;margin-top:12px}
+.ac-edit-area.open{display:block}
+.ac-edit-area textarea{
+  width:100%;min-height:160px;padding:12px;background:var(--paper);border:2px solid var(--ink);
+  color:var(--ink);font-family:'Special Elite',monospace;font-size:.92rem;line-height:1.6;
+  box-shadow:3px 3px 0 var(--ink);resize:vertical;
+}
+.ac-edit-area textarea:focus{outline:none;background:var(--amarelo)}
+.ac-edit-area input{
+  width:100%;padding:9px 12px;margin-bottom:10px;background:var(--paper);border:2px solid var(--ink);
+  color:var(--ink);font-family:'Special Elite',monospace;font-size:.92rem;
+  box-shadow:3px 3px 0 var(--ink);
+}
+.ac-edit-area input:focus{outline:none;background:var(--amarelo)}
+.ac-edit-label{font-family:'Anton',sans-serif;font-size:.75rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:6px;display:block}
+
+.ac-footer{padding:12px 16px;border-top:1.5px dashed rgba(26,20,16,.2);display:flex;gap:10px;flex-wrap:wrap;background:var(--paper2)}
+.btn-approve{padding:9px 18px;background:var(--verde);color:var(--cream);border:2px solid var(--ink);cursor:pointer;font-family:'Anton',sans-serif;font-size:.82rem;letter-spacing:1.5px;text-transform:uppercase;box-shadow:3px 3px 0 var(--ink);transition:all .15s}
+.btn-approve:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--azul)}
+.btn-reject{padding:9px 18px;background:var(--vermelho);color:var(--cream);border:2px solid var(--ink);cursor:pointer;font-family:'Anton',sans-serif;font-size:.82rem;letter-spacing:1.5px;text-transform:uppercase;box-shadow:3px 3px 0 var(--ink);transition:all .15s}
+.btn-reject:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--ink)}
+.btn-edit-toggle{padding:9px 16px;background:var(--azul);color:var(--cream);border:2px solid var(--ink);cursor:pointer;font-family:'Anton',sans-serif;font-size:.82rem;letter-spacing:1.5px;text-transform:uppercase;box-shadow:3px 3px 0 var(--ink)}
+.btn-save-edit{padding:9px 18px;background:var(--azul);color:var(--cream);border:2px solid var(--ink);cursor:pointer;font-family:'Anton',sans-serif;font-size:.82rem;letter-spacing:1.5px;text-transform:uppercase;box-shadow:3px 3px 0 var(--ink);transition:all .15s}
+.btn-save-edit:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--amarelo)}
+.btn-delete{padding:9px 14px;background:var(--paper);color:var(--ink2);border:2px solid var(--ink);cursor:pointer;font-family:'Special Elite',monospace;font-size:.82rem;box-shadow:2px 2px 0 var(--ink)}
+.btn-delete:hover{background:var(--vermelho);color:var(--cream)}
+
+/* ─── EMPTY ─── */
+.empty-state{text-align:center;padding:60px 20px;font-family:'Special Elite',monospace;color:var(--muted);font-size:1rem;line-height:2;border:3px dashed var(--muted);background:var(--cream)}
+
+/* ─── TOAST ─── */
+.toast-wrap{position:fixed;bottom:22px;right:22px;z-index:9999;display:flex;flex-direction:column;gap:10px}
+.toast{background:var(--cream);border:3px solid var(--ink);padding:12px 18px;font-family:'Anton',sans-serif;font-size:.95rem;letter-spacing:1px;text-transform:uppercase;box-shadow:5px 5px 0 var(--ink);animation:tossIn .4s cubic-bezier(.2,1.4,.5,1);max-width:300px}
+.toast.ok{background:var(--verde);color:var(--cream)}
+.toast.err{background:var(--vermelho);color:var(--cream)}
+@keyframes tossIn{from{transform:translateX(120px);opacity:0}to{transform:none;opacity:1}}
+
+/* ─── SPINNER ─── */
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:40px;height:40px;border:4px dashed var(--ink);border-top-color:var(--vermelho);border-radius:50%;animation:spin 1.1s linear infinite}
+.loading-state{display:flex;align-items:center;justify-content:center;min-height:200px;flex-direction:column;gap:12px;font-family:'Special Elite',monospace;color:var(--muted)}
+
+@media(max-width:600px){
+  .form-grid{grid-template-columns:1fr}
+  header{flex-direction:column;align-items:flex-start}
+  .admin-nav button{min-width:0;font-size:.72rem;padding:12px 8px;letter-spacing:.5px}
+}
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN GATE ── -->
+<div id="loginScreen">
+  <div class="login-box">
+    <h1>⚽ Admin Copa 26</h1>
+    <p>Painel de resumões · acesso restrito</p>
+    <input type="password" class="login-input" id="loginInput" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Entrar</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- ── APP ── -->
+<div id="app" style="display:none">
+
+  <header>
+    <div>
+      <div class="hdr-title">⚽ Admin Copa 2026</div>
+      <div class="hdr-sub">Painel de resumões · uso exclusivo do editor</div>
+    </div>
+    <button class="btn-logout" onclick="doLogout()">Sair</button>
+  </header>
+
+  <nav class="admin-nav">
+    <button class="active" onclick="showSection('pendentes',this)">
+      Pendentes <span class="badge" id="badgePendente">0</span>
+    </button>
+    <button onclick="showSection('publicados',this)">
+      Publicados <span class="badge" id="badgePublicado">0</span>
+    </button>
+    <button onclick="showSection('rejeitados',this)">
+      Rejeitados <span class="badge" id="badgeRejeitado">0</span>
+    </button>
+    <button onclick="showSection('novo',this)">
+      + Novo
+    </button>
+  </nav>
+
+  <div class="content">
+
+    <!-- PENDENTES -->
+    <div id="sec-pendentes" class="section">
+      <div id="listPendentes">
+        <div class="loading-state"><div class="spinner"></div><div>Carregando...</div></div>
+      </div>
+    </div>
+
+    <!-- PUBLICADOS -->
+    <div id="sec-publicados" class="section" style="display:none">
+      <div id="listPublicados">
+        <div class="loading-state"><div class="spinner"></div><div>Carregando...</div></div>
+      </div>
+    </div>
+
+    <!-- REJEITADOS -->
+    <div id="sec-rejeitados" class="section" style="display:none">
+      <div id="listRejeitados">
+        <div class="loading-state"><div class="spinner"></div><div>Carregando...</div></div>
+      </div>
+    </div>
+
+    <!-- NOVO RESUMÃO -->
+    <div id="sec-novo" class="section" style="display:none">
+      <div class="form-section">
+        <div class="form-grid">
+          <div class="form-full">
+            <label>Título do Resumão</label>
+            <input type="text" class="form-input" id="fTitulo" placeholder="Ex: O Clássico das Américas que Ninguém Pediu">
+          </div>
+          <div>
+            <label>Time Casa</label>
+            <input type="text" class="form-input" id="fTimeCasa" placeholder="Brasil">
+          </div>
+          <div>
+            <label>Time Fora</label>
+            <input type="text" class="form-input" id="fTimeFora" placeholder="Argentina">
+          </div>
+          <div>
+            <label>Placar</label>
+            <div class="score-row">
+              <input type="number" class="score-inp" id="fPlacarCasa" min="0" max="99" placeholder="0">
+              <span class="score-sep">×</span>
+              <input type="number" class="score-inp" id="fPlacarFora" min="0" max="99" placeholder="0">
+            </div>
+          </div>
+          <div>
+            <label>Fase</label>
+            <select class="form-select" id="fFase">
+              <option value="">Selecionar...</option>
+              <option value="Fase de Grupos">Fase de Grupos</option>
+              <option value="16 avos de Final">16 avos de Final</option>
+              <option value="Oitavas de Final">Oitavas de Final</option>
+              <option value="Quartas de Final">Quartas de Final</option>
+              <option value="Semifinal">Semifinal</option>
+              <option value="3° Lugar">3° Lugar</option>
+              <option value="FINAL">FINAL</option>
+            </select>
+          </div>
+          <div>
+            <label>Data do Jogo</label>
+            <input type="datetime-local" class="form-input" id="fDataJogo">
+          </div>
+          <div>
+            <label>Status</label>
+            <select class="form-select" id="fStatus">
+              <option value="pendente">Pendente (aguarda revisão)</option>
+              <option value="publicado">Publicado (vai ao ar já)</option>
+            </select>
+          </div>
+          <div class="form-full">
+            <label>Texto do Resumão</label>
+            <textarea class="form-textarea" id="fTexto" placeholder="Brasil ficou no 1x1 com o Marrocos em Nova Jersey.&#10;&#10;A Seleção Brasileira. Pentacampeã mundial. Cinco vezes. Empate com o Marrocos.&#10;&#10;..."></textarea>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-primary" onclick="criarResumo()">Criar Resumão</button>
+          <button class="btn-secondary" onclick="limparForm()">Limpar</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+const SB_URL = 'https://tyazqnpveylqpdmheavv.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5YXpxbnB2ZXlscXBkbWhlYXZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NjI5OTMsImV4cCI6MjA5NTUzODk5M30.jRtNnPWEaXJb3L_oPnYvGoKsQnk22v0bJiscukV9u7Q';
+const sb = supabase.createClient(SB_URL, SB_KEY);
+
+const ADMIN_PASS = 'copa2026admin';
+const MONTHS=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+let allResumaes=[];
+let currentSection='pendentes';
+
+/* ── AUTH ── */
+function doLogin(){
+  const val=document.getElementById('loginInput').value;
+  if(val===ADMIN_PASS){
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('app').style.display='block';
+    sessionStorage.setItem('copa_admin','1');
+    init();
+  } else {
+    document.getElementById('loginErr').textContent='Senha incorreta. Tenta de novo.';
+    document.getElementById('loginInput').value='';
+    document.getElementById('loginInput').focus();
+  }
+}
+
+function doLogout(){
+  sessionStorage.removeItem('copa_admin');
+  location.reload();
+}
+
+/* ── INIT ── */
+async function init(){
+  await loadAll();
+  setupRealtime();
+  renderSection(currentSection);
+}
+
+async function loadAll(){
+  const {data,error}=await sb.from('resumoes').select('*').order('created_at',{ascending:false});
+  if(error){toast('Erro ao carregar: '+error.message,'err');return}
+  allResumaes=data||[];
+  updateBadges();
+}
+
+function setupRealtime(){
+  sb.channel('admin-resumoes').on('postgres_changes',{event:'*',schema:'public',table:'resumoes'},async()=>{
+    await loadAll();
+    renderSection(currentSection);
+  }).subscribe();
+}
+
+function updateBadges(){
+  document.getElementById('badgePendente').textContent=allResumaes.filter(r=>r.status==='pendente').length;
+  document.getElementById('badgePublicado').textContent=allResumaes.filter(r=>r.status==='publicado').length;
+  document.getElementById('badgeRejeitado').textContent=allResumaes.filter(r=>r.status==='rejeitado').length;
+}
+
+/* ── SECTIONS ── */
+function showSection(sec,btn){
+  currentSection=sec;
+  document.querySelectorAll('.section').forEach(s=>s.style.display='none');
+  document.querySelectorAll('.admin-nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sec-'+sec).style.display='block';
+  btn.classList.add('active');
+  if(sec!=='novo') renderSection(sec);
+}
+
+function renderSection(sec){
+  if(sec==='novo') return;
+  const list=allResumaes.filter(r=>r.status===sec);
+  const el=document.getElementById('list'+capitalize(sec));
+  if(!el) return;
+  if(!list.length){
+    el.innerHTML=`<div class="empty-state">Nenhum resumão ${sec} no momento.</div>`;
+    return;
+  }
+  el.innerHTML=list.map(r=>adminCard(r)).join('');
+}
+
+function capitalize(s){return s.charAt(0).toUpperCase()+s.slice(1)}
+
+/* ── CARD ── */
+function adminCard(r){
+  const placar=r.placar_casa!==null&&r.placar_fora!==null?`${r.placar_casa}×${r.placar_fora}`:'–';
+  const times=r.time_casa&&r.time_fora?`${escHtml(r.time_casa)} × ${escHtml(r.time_fora)}`:'';
+  const data=r.data_jogo?formatDate(r.data_jogo):'';
+  const ts=formatTs(r.created_at);
+
+  const approveBtn=r.status!=='publicado'?`<button class="btn-approve" onclick="setStatus('${r.id}','publicado')">✓ Publicar</button>`:'';
+  const rejectBtn=r.status!=='rejeitado'?`<button class="btn-reject" onclick="setStatus('${r.id}','rejeitado')">✕ Rejeitar</button>`:'';
+  const pendBtn=r.status!=='pendente'?`<button class="btn-secondary" onclick="setStatus('${r.id}','pendente')" style="font-size:.78rem;padding:7px 12px">↩ Pendente</button>`:'';
+
+  return `<div class="admin-card ${r.status}" id="ac-${r.id}">
+    <div class="ac-header">
+      <div class="ac-title">${escHtml(r.titulo)}</div>
+      <div class="ac-meta">
+        <span class="ac-status status-${r.status}">${r.status}</span>
+        <span class="ac-date">${ts}</span>
+      </div>
+    </div>
+    ${(times||placar!=='–')?`<div class="ac-game">
+      <span class="ac-score">${placar}</span>
+      ${times?`<span class="ac-teams">${times}</span>`:''}
+      ${r.fase?`<span class="ac-fase">${escHtml(r.fase)}</span>`:''}
+      ${data?`<span style="font-family:'VT323',monospace;color:rgba(255,217,26,.6);font-size:.9rem;margin-left:auto">${data}</span>`:''}
+    </div>`:''}
+    <div class="ac-body">
+      <div class="ac-texto-view" id="tv-${r.id}">${escHtml(r.texto)}</div>
+      <button class="btn-expand" onclick="toggleExpand('${r.id}')">ver mais ↓</button>
+      <div class="ac-edit-area" id="ea-${r.id}">
+        <span class="ac-edit-label">Título</span>
+        <input type="text" id="et-${r.id}" value="${escAttr(r.titulo)}">
+        <span class="ac-edit-label">Texto</span>
+        <textarea id="etx-${r.id}">${escHtml(r.texto)}</textarea>
+      </div>
+    </div>
+    <div class="ac-footer">
+      ${approveBtn}
+      ${rejectBtn}
+      ${pendBtn}
+      <button class="btn-edit-toggle" onclick="toggleEdit('${r.id}')">✏ Editar</button>
+      <button class="btn-save-edit" onclick="saveEdit('${r.id}')" style="display:none" id="bs-${r.id}">💾 Salvar</button>
+      <button class="btn-delete" onclick="deleteResumo('${r.id}')">🗑</button>
+    </div>
+  </div>`;
+}
+
+function toggleExpand(id){
+  const tv=document.getElementById('tv-'+id);
+  const btn=tv.nextElementSibling;
+  tv.classList.toggle('expanded');
+  btn.textContent=tv.classList.contains('expanded')?'ver menos ↑':'ver mais ↓';
+}
+
+function toggleEdit(id){
+  const ea=document.getElementById('ea-'+id);
+  const bs=document.getElementById('bs-'+id);
+  const isOpen=ea.classList.contains('open');
+  ea.classList.toggle('open');
+  bs.style.display=isOpen?'none':'inline-block';
+}
+
+/* ── ACTIONS ── */
+async function setStatus(id,status){
+  const {error}=await sb.from('resumoes').update({status}).eq('id',id);
+  if(error){toast('Erro: '+error.message,'err');return}
+  toast(status==='publicado'?'✓ Publicado!':status==='rejeitado'?'Rejeitado.':'Movido para pendente.','ok');
+  await loadAll();
+  renderSection(currentSection);
+}
+
+async function saveEdit(id){
+  const titulo=document.getElementById('et-'+id)?.value.trim();
+  const texto=document.getElementById('etx-'+id)?.value.trim();
+  if(!titulo||!texto){toast('Título e texto são obrigatórios','err');return}
+  const {error}=await sb.from('resumoes').update({titulo,texto}).eq('id',id);
+  if(error){toast('Erro: '+error.message,'err');return}
+  toast('Editado!','ok');
+  await loadAll();
+  renderSection(currentSection);
+}
+
+async function deleteResumo(id){
+  if(!confirm('Deletar este resumão permanentemente?')) return;
+  const {error}=await sb.from('resumoes').delete().eq('id',id);
+  if(error){toast('Erro: '+error.message,'err');return}
+  toast('Deletado.','ok');
+  await loadAll();
+  renderSection(currentSection);
+}
+
+async function criarResumo(){
+  const titulo=document.getElementById('fTitulo').value.trim();
+  const texto=document.getElementById('fTexto').value.trim();
+  const timeCasa=document.getElementById('fTimeCasa').value.trim()||null;
+  const timeFora=document.getElementById('fTimeFora').value.trim()||null;
+  const placarCasaV=document.getElementById('fPlacarCasa').value;
+  const placarForaV=document.getElementById('fPlacarFora').value;
+  const fase=document.getElementById('fFase').value||null;
+  const dataJogo=document.getElementById('fDataJogo').value||null;
+  const status=document.getElementById('fStatus').value;
+
+  if(!titulo){toast('Título é obrigatório','err');return}
+  if(!texto){toast('Texto é obrigatório','err');return}
+
+  const payload={
+    titulo,texto,status,
+    time_casa:timeCasa,time_fora:timeFora,
+    placar_casa:placarCasaV!==''?parseInt(placarCasaV):null,
+    placar_fora:placarForaV!==''?parseInt(placarForaV):null,
+    fase,
+    data_jogo:dataJogo?new Date(dataJogo).toISOString():null
+  };
+
+  const {error}=await sb.from('resumoes').insert(payload);
+  if(error){toast('Erro ao criar: '+error.message,'err');return}
+  toast('Resumão criado!','ok');
+  limparForm();
+  await loadAll();
+  showSection('pendentes',document.querySelectorAll('.admin-nav button')[0]);
+}
+
+function limparForm(){
+  ['fTitulo','fTimeCasa','fTimeFora','fTexto','fDataJogo'].forEach(id=>{document.getElementById(id).value=''});
+  document.getElementById('fPlacarCasa').value='';
+  document.getElementById('fPlacarFora').value='';
+  document.getElementById('fFase').value='';
+  document.getElementById('fStatus').value='pendente';
+}
+
+/* ── UTILS ── */
+function escHtml(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function escAttr(s){return(s||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+function formatDate(iso){const d=new Date(iso);return`${d.getDate()} ${MONTHS[d.getMonth()]}`}
+function formatTs(iso){if(!iso)return'';const d=new Date(iso);return`${d.getDate()}/${d.getMonth()+1} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`}
+
+function toast(msg,type){
+  const w=document.getElementById('toastWrap');
+  const t=document.createElement('div');
+  t.className=`toast ${type}`;t.textContent=msg;
+  w.appendChild(t);
+  setTimeout(()=>{t.style.transition='all .3s';t.style.opacity='0';t.style.transform='translateX(120px)';setTimeout(()=>t.remove(),300)},3000);
+}
+
+/* ── AUTO-LOGIN se já tiver sessão ── */
+if(sessionStorage.getItem('copa_admin')==='1'){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('app').style.display='block';
+  init();
+}
+</script>
+</body>
+</html>
