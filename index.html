@@ -620,18 +620,12 @@ h2.sec-title{
 
 <script>
 /* ──────────────────────────────────────────
-   Supabase — placares e grupos (projeto Briefing)
-   ────────────────────────────────────────── */
-const SB_URL = 'https://ixsngduywvabrwbiohul.supabase.co';
-const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml4c25nZHV5d3ZhYnJ3YmlvaHVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1MTA2NTksImV4cCI6MjA5NDA4NjY1OX0.d9xB9jqGiHzTB91ljIuHTQyDkt7EDmbKjIBqyKl-6Zo';
-const sb = supabase.createClient(SB_URL, SB_KEY);
-
-/* ──────────────────────────────────────────
-   Supabase — resumões (projeto Projeto85)
+   Supabase — Caô de Copa (único projeto)
    ────────────────────────────────────────── */
 const SB_R_URL = 'https://tyazqnpveylqpdmheavv.supabase.co';
 const SB_R_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5YXpxbnB2ZXlscXBkbWhlYXZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NjI5OTMsImV4cCI6MjA5NTUzODk5M30.jRtNnPWEaXJb3L_oPnYvGoKsQnk22v0bJiscukV9u7Q';
 const sbR = supabase.createClient(SB_R_URL, SB_R_KEY);
+const sb = sbR;
 
 let teams={}, groups={}, venues={}, matches=[];
 let resumoes=[];
@@ -693,19 +687,6 @@ async function loadResumaes(){
 }
 
 function setupRealtime(){
-  sb.channel('wc2026').on('postgres_changes',{event:'*',schema:'public',table:'wc_matches'},p=>{
-    if(p.eventType==='DELETE') return;
-    const i=matches.findIndex(m=>m.id===p.new.id);
-    if(i>=0) matches[i]=p.new; else matches.push(p.new);
-    renderAll();
-    toast('Placar atualizado!','ok');
-  }).subscribe(s=>{
-    const dot=document.getElementById('rtDot');
-    const lbl=document.getElementById('rtLabel');
-    if(s==='SUBSCRIBED'){dot.className='rt-dot on';lbl.textContent='ao vivo · tempo real'}
-    else{dot.className='rt-dot';lbl.textContent='reconectando...'}
-  });
-
   sbR.channel('resumoes-pub').on('postgres_changes',{event:'*',schema:'public',table:'resumoes'},p=>{
     if(p.new?.status==='publicado'){
       const i=resumoes.findIndex(r=>r.id===p.new.id);
@@ -716,7 +697,12 @@ function setupRealtime(){
       resumoes=resumoes.filter(r=>r.id!==p.new?.id);
       renderResumaes();
     }
-  }).subscribe();
+  }).subscribe(s=>{
+    const dot=document.getElementById('rtDot');
+    const lbl=document.getElementById('rtLabel');
+    if(s==='SUBSCRIBED'){dot.className='rt-dot on';lbl.textContent='ao vivo · tempo real'}
+    else{dot.className='rt-dot';lbl.textContent='reconectando...'}
+  });
 }
 
 function renderAll(){
