@@ -382,6 +382,56 @@ h2.sec-title{
   h2.sec-title{font-size:1.4rem}
   .rc-placar{font-size:1.3rem}
 }
+
+/* ─── BOLÃO ─── */
+.bp-salas-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:22px;margin-top:4px}
+.bp-card{background:var(--cream);border:3px solid var(--ink);box-shadow:6px 6px 0 var(--ink);padding:22px 24px;position:relative}
+.bp-card-title{font-family:'Bungee',sans-serif;font-size:1.1rem;color:var(--ink);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.bp-card-sub{font-family:'Special Elite',monospace;font-size:.88rem;color:var(--muted);margin-bottom:16px;line-height:1.5}
+.bp-input{width:100%;padding:11px 14px;background:var(--paper);border:2px solid var(--ink);color:var(--ink);font-family:'Special Elite',monospace;font-size:.95rem;box-shadow:3px 3px 0 var(--ink);margin-bottom:12px;display:block}
+.bp-input:focus{outline:none;background:var(--amarelo);box-shadow:3px 3px 0 var(--vermelho)}
+.bp-btn-primary{width:100%;padding:12px;background:var(--verde);color:var(--cream);border:2px solid var(--ink);cursor:pointer;font-family:'Anton',sans-serif;font-size:.95rem;letter-spacing:1.5px;text-transform:uppercase;box-shadow:3px 3px 0 var(--ink);transition:all .15s}
+.bp-btn-primary:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--azul);background:var(--verde-d)}
+.bp-btn-primary:disabled{background:var(--muted);cursor:default;transform:none;box-shadow:2px 2px 0 var(--ink)}
+.bp-msg{font-family:'Special Elite',monospace;font-size:.88rem;color:var(--vermelho);margin-top:10px;min-height:20px;line-height:1.5}
+.bp-user-bar{display:flex;align-items:center;justify-content:space-between;background:var(--ink);color:var(--cream);padding:10px 16px;border:3px solid var(--ink);box-shadow:4px 4px 0 var(--vermelho);margin-bottom:20px;font-family:'Anton',sans-serif;font-size:.88rem;letter-spacing:1px;text-transform:uppercase;flex-wrap:wrap;gap:8px}
+.bp-btn-sm{padding:6px 14px;background:var(--paper);color:var(--ink2);border:2px solid var(--ink);cursor:pointer;font-family:'Anton',sans-serif;font-size:.75rem;letter-spacing:1px;box-shadow:2px 2px 0 var(--ink);flex-shrink:0}
+.bp-btn-sm:hover{background:var(--vermelho);color:var(--cream)}
+.bp-sala-header{display:flex;align-items:flex-start;justify-content:space-between;background:var(--azul);color:var(--cream);padding:14px 18px;border:3px solid var(--ink);box-shadow:5px 5px 0 var(--ink);margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.bp-sala-nome{font-family:'Bungee',sans-serif;font-size:1.1rem;color:var(--amarelo);text-transform:uppercase;letter-spacing:1.5px;text-shadow:2px 2px 0 var(--ink)}
+.bp-sala-codigo{font-family:'VT323',monospace;font-size:.95rem;color:rgba(255,245,217,.7);margin-top:4px;cursor:pointer}
+.bp-sub-nav{display:flex;border-bottom:3px solid var(--ink);margin-bottom:20px}
+.bp-sub-btn{flex:1;padding:10px;background:var(--paper-dark);border:none;border-right:2px solid var(--ink);color:var(--ink);cursor:pointer;font-family:'Anton',sans-serif;font-size:.85rem;letter-spacing:1.5px;text-transform:uppercase;transition:all .15s}
+.bp-sub-btn.active{background:var(--amarelo);color:var(--ink)}
+.bp-sub-btn:last-child{border-right:none}
+.bp-sub-btn:hover:not(.active){background:var(--cream)}
+.bp-loading{display:flex;align-items:center;gap:12px;padding:40px 0;color:var(--muted);font-family:'Special Elite',monospace;font-size:.92rem}
+.bp-empty{font-family:'Special Elite',monospace;color:var(--muted);text-align:center;padding:50px 20px;font-size:.92rem;line-height:2;border:3px dashed var(--muted);background:var(--cream)}
+.bp-palpite-card{background:var(--cream);border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);margin-bottom:14px;overflow:hidden;transition:transform .15s,box-shadow .15s}
+.bp-palpite-card:not(.locked):hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--vermelho)}
+.bp-palpite-card.locked{background:var(--paper2)}
+.bpp-header{padding:12px 16px;background:var(--ink);color:var(--cream);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.bpp-teams{font-family:'Anton',sans-serif;font-size:.95rem;letter-spacing:1px;text-transform:uppercase;flex:1}
+.bpp-fase{font-family:'VT323',monospace;font-size:.9rem;color:var(--amarelo);opacity:.7}
+.bpp-data{font-family:'VT323',monospace;font-size:.88rem;color:rgba(255,245,217,.6);width:100%}
+.bpp-locked-tag{font-family:'Bungee',sans-serif;font-size:.68rem;color:var(--amarelo);letter-spacing:1px}
+.bpp-inputs{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--paper2)}
+.bpp-inp{width:56px;height:48px;text-align:center;background:var(--paper);border:2px solid var(--ink);color:var(--ink);font-family:'Bungee',sans-serif;font-size:1.5rem;box-shadow:3px 3px 0 var(--ink)}
+.bpp-inp:focus{outline:none;background:var(--amarelo);box-shadow:3px 3px 0 var(--vermelho)}
+.bpp-sep{font-family:'Bungee',sans-serif;font-size:1.3rem;color:var(--vermelho)}
+.bp-btn-cravar{padding:10px 18px;background:var(--verde);color:var(--cream);border:2px solid var(--ink);cursor:pointer;font-family:'Anton',sans-serif;font-size:.85rem;letter-spacing:1.5px;text-transform:uppercase;box-shadow:3px 3px 0 var(--ink);margin-left:auto;transition:all .15s}
+.bp-btn-cravar:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--azul)}
+.bpp-saved{padding:10px 16px;font-family:'Special Elite',monospace;font-size:.88rem;color:var(--ink2);background:var(--paper2);border-top:1.5px dashed rgba(26,20,16,.2)}
+.bpp-pts{background:var(--verde);color:var(--cream);font-family:'Bungee',sans-serif;font-size:.78rem;padding:2px 8px;border:2px solid var(--ink);margin-left:8px}
+.bp-ranking-list{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.bp-rank-row{display:flex;align-items:center;gap:14px;background:var(--cream);border:2.5px solid var(--ink);padding:12px 16px;box-shadow:3px 3px 0 var(--ink)}
+.bp-rank-row.me{background:var(--amarelo);box-shadow:3px 3px 0 var(--azul)}
+.bp-rank-pos{font-family:'Special Elite',monospace;font-size:.8rem;color:var(--ink2);flex-basis:190px;flex-shrink:0;line-height:1.3}
+.bp-rank-nome{font-family:'Anton',sans-serif;font-size:.9rem;letter-spacing:1px;text-transform:uppercase;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bp-you{font-family:'Special Elite',monospace;font-size:.72rem;color:var(--azul);text-transform:none;letter-spacing:0;font-style:italic;font-weight:normal}
+.bp-rank-pts{font-family:'Bungee',sans-serif;font-size:1.1rem;color:var(--vermelho);text-align:right;white-space:nowrap;flex-shrink:0}
+.bp-rank-pts small{font-family:'Anton',sans-serif;font-size:.68rem;color:var(--muted);display:block;letter-spacing:1px}
+@media(max-width:600px){.bp-rank-pos{flex-basis:auto;font-size:.72rem}.bp-salas-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -406,6 +456,7 @@ h2.sec-title{
   <button onclick="showTab('matamata',this)"><span class="nav-ico">⚔️</span><span class="nav-lbl">Mata-Mata</span></button>
   <button onclick="showTab('jogos',this)"><span class="nav-ico">📅</span><span class="nav-lbl">Jogos</span></button>
   <button onclick="showTab('resumao',this)"><span class="nav-ico">📰</span><span class="nav-lbl">Resumão</span></button>
+  <button onclick="showTab('bolao',this)"><span class="nav-ico">🎯</span><span class="nav-lbl">Bolão</span></button>
 </nav>
 
 <div class="content">
@@ -472,6 +523,67 @@ h2.sec-title{
         <div>Carregando resumões...</div>
       </div>
     </div>
+  </div>
+
+  <!-- ── BOLÃO ── -->
+  <div id="tab-bolao" class="tab">
+    <h2 class="sec-title">Bolão do Caô</h2>
+    <p class="sec-sub">Palpite · pontua · compete com os amigos</p>
+
+    <div id="bp-login">
+      <div class="bp-salas-grid" style="max-width:420px">
+        <div class="bp-card">
+          <div class="bp-card-title">🎯 Entre pro Bolão</div>
+          <p class="bp-card-sub">Sem senha, sem frescura. Só o email.</p>
+          <input type="email" id="bpEmail" class="bp-input" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')bpMagicLink()">
+          <button class="bp-btn-primary" id="bpLoginBtn" onclick="bpMagicLink()">Entrar com magic link</button>
+          <div id="bpLoginMsg" class="bp-msg"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="bp-salas" style="display:none">
+      <div class="bp-user-bar">
+        <span id="bpUserNome">...</span>
+        <button class="bp-btn-sm" onclick="bpLogout()">Sair</button>
+      </div>
+      <div class="bp-salas-grid">
+        <div class="bp-card">
+          <div class="bp-card-title">🏆 Bolão Geral</div>
+          <p class="bp-card-sub">Todo mundo junto. Sem código. Entra e já era.</p>
+          <button class="bp-btn-primary" onclick="bpEntrarGeral()">Entrar no Bolão Geral</button>
+        </div>
+        <div class="bp-card">
+          <div class="bp-card-title">🔐 Entrar com Código</div>
+          <p class="bp-card-sub">Cola o código que a galera mandou.</p>
+          <input type="text" id="bpCodigo" class="bp-input" placeholder="Ex: X7KP2Q" maxlength="6" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')bpEntrarCodigo()">
+          <button class="bp-btn-primary" onclick="bpEntrarCodigo()">Entrar com código</button>
+        </div>
+        <div class="bp-card">
+          <div class="bp-card-title">➕ Criar Sala</div>
+          <p class="bp-card-sub">Cria uma sala, manda o código pro grupo.</p>
+          <input type="text" id="bpNomeSala" class="bp-input" placeholder="Nome (ex: Rep da Vila)" maxlength="40" onkeydown="if(event.key==='Enter')bpCriarSala()">
+          <button class="bp-btn-primary" onclick="bpCriarSala()">Criar minha sala</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="bp-sala" style="display:none">
+      <div class="bp-sala-header">
+        <div>
+          <div class="bp-sala-nome" id="bpSalaNome">...</div>
+          <div class="bp-sala-codigo" id="bpSalaCodigo" title="Clique para copiar" onclick="bpCopiarCodigo()">...</div>
+        </div>
+        <button class="bp-btn-sm" onclick="bpVoltarSalas()">← Trocar sala</button>
+      </div>
+      <div class="bp-sub-nav">
+        <button class="bp-sub-btn active" id="bpSubBtnPalpites" onclick="bpShowSub('palpites',this)">⚽ Palpites</button>
+        <button class="bp-sub-btn" id="bpSubBtnRanking" onclick="bpShowSub('ranking',this)">🏆 Ranking</button>
+      </div>
+      <div id="bps-palpites"><div class="bp-loading"><div class="spinner"></div><div>Carregando jogos...</div></div></div>
+      <div id="bps-ranking" style="display:none"><div class="bp-loading"><div class="spinner"></div><div>Calculando...</div></div></div>
+    </div>
+
   </div>
 
 </div>
@@ -589,6 +701,7 @@ function showTab(tab,btn){
   btn.classList.add('active');
   if(tab==='classificacao') renderClass();
   if(tab==='matamata') renderBracket();
+  if(tab==='bolao') bpInit();
 }
 
 /* ── STANDINGS ── */
@@ -855,6 +968,233 @@ async function shareResumo(id){
     try{await navigator.clipboard.writeText(text);toast('Resumão copiado!','ok')}
     catch{toast('Não foi possível compartilhar','err')}
   }
+}
+
+/* ─── BOLÃO ─── */
+let bpUser=null,bpProfile=null,bpSalaAtual=null,bpJogos=[],bpMeusPalpites={},bpInited=false;
+
+async function bpInit(){
+  if(bpInited){bpRefreshScreen();return}
+  bpInited=true;
+  sbR.auth.onAuthStateChange(async(event,session)=>{
+    if(event==='SIGNED_IN'&&session?.user){
+      bpUser=session.user;
+      await bpLoadProfile();
+      bpShowTela('salas');
+      if(activeTab!=='bolao'){
+        const btn=document.querySelector('nav button[onclick*="bolao"]');
+        if(btn) showTab('bolao',btn);
+      }
+    }else if(event==='SIGNED_OUT'){
+      bpUser=null;bpProfile=null;bpSalaAtual=null;
+      if(activeTab==='bolao') bpShowTela('login');
+    }
+  });
+  const{data:{user}}=await sbR.auth.getUser();
+  if(user){bpUser=user;await bpLoadProfile();bpShowTela('salas')}
+  else bpShowTela('login');
+}
+
+function bpRefreshScreen(){
+  if(!bpUser) bpShowTela('login');
+  else if(!bpSalaAtual) bpShowTela('salas');
+  else bpShowTela('sala');
+}
+
+function bpShowTela(t){
+  ['login','salas','sala'].forEach(id=>{
+    const el=document.getElementById('bp-'+id);
+    if(el) el.style.display=(id===t)?'block':'none';
+  });
+}
+
+async function bpLoadProfile(){
+  const{data}=await sbR.from('profiles').select('*').eq('id',bpUser.id).maybeSingle();
+  if(data){
+    bpProfile=data;
+  }else{
+    const nome=prompt('Como você quer aparecer no ranking?')||bpUser.email.split('@')[0]||'Anônimo';
+    const{data:np}=await sbR.from('profiles').insert({id:bpUser.id,nome}).select().maybeSingle();
+    bpProfile=np||{id:bpUser.id,nome};
+  }
+  const el=document.getElementById('bpUserNome');
+  if(el) el.textContent=bpProfile?.nome||bpUser.email;
+}
+
+async function bpMagicLink(){
+  const btn=document.getElementById('bpLoginBtn');
+  const msg=document.getElementById('bpLoginMsg');
+  const email=document.getElementById('bpEmail').value.trim().toLowerCase();
+  if(!email||!email.includes('@')){msg.textContent='Email inválido, véi.';return}
+  btn.disabled=true;btn.textContent='Enviando...';msg.textContent='';
+  const{error}=await sbR.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname}});
+  if(error){
+    msg.style.color='var(--vermelho)';msg.textContent='Erro: '+error.message;
+    btn.disabled=false;btn.textContent='Entrar com magic link';
+  }else{
+    msg.style.color='var(--verde-d)';
+    msg.textContent='✓ Link enviado pro seu email. Abre e clica.';
+    btn.textContent='Link enviado!';
+  }
+}
+
+async function bpLogout(){
+  await sbR.auth.signOut();
+  bpUser=null;bpProfile=null;bpSalaAtual=null;bpInited=false;
+  bpShowTela('login');
+}
+
+async function bpEntrarGeral(){
+  const{data:sala}=await sbR.from('boloes').select('*').eq('codigo_acesso','GERAL2026').maybeSingle();
+  if(!sala){toast('Bolão geral não encontrado','err');return}
+  await bpEntrarNaSala(sala);
+}
+
+async function bpEntrarCodigo(){
+  const cod=(document.getElementById('bpCodigo').value||'').trim().toUpperCase();
+  if(!cod){toast('Digite o código da sala','err');return}
+  const{data:sala}=await sbR.from('boloes').select('*').eq('codigo_acesso',cod).maybeSingle();
+  if(!sala){toast('Sala não encontrada. Confere o código.','err');return}
+  await bpEntrarNaSala(sala);
+}
+
+async function bpCriarSala(){
+  if(!bpProfile){toast('Faça login primeiro','err');return}
+  const nome=(document.getElementById('bpNomeSala').value||'').trim();
+  if(!nome){toast('Dá um nome pra sala','err');return}
+  const codigo=Math.random().toString(36).substring(2,8).toUpperCase();
+  const{data:sala,error}=await sbR.from('boloes').insert({nome,codigo_acesso:codigo,criador_id:bpProfile.id,tipo:'privado'}).select().maybeSingle();
+  if(error){toast('Erro ao criar: '+error.message,'err');return}
+  toast('Sala criada! Código: '+codigo,'ok');
+  await bpEntrarNaSala(sala);
+}
+
+async function bpEntrarNaSala(sala){
+  if(!bpProfile){toast('Faça login primeiro','err');return}
+  bpSalaAtual=sala;
+  await sbR.from('membros_bolao').upsert({bolao_id:sala.id,user_id:bpProfile.id},{ignoreDuplicates:true});
+  document.getElementById('bpSalaNome').textContent=sala.nome;
+  document.getElementById('bpSalaCodigo').textContent=sala.tipo==='privado'?`🔑 Código: ${sala.codigo_acesso}`:'🌎 Bolão Geral · aberto a todos';
+  bpShowTela('sala');
+  document.getElementById('bpSubBtnPalpites').classList.add('active');
+  document.getElementById('bpSubBtnRanking').classList.remove('active');
+  document.getElementById('bps-palpites').style.display='block';
+  document.getElementById('bps-ranking').style.display='none';
+  await bpLoadPalpites();
+}
+
+async function bpCopiarCodigo(){
+  if(!bpSalaAtual||bpSalaAtual.tipo==='publico') return;
+  try{await navigator.clipboard.writeText(bpSalaAtual.codigo_acesso);toast('Código copiado!','ok')}
+  catch{toast('Código: '+bpSalaAtual.codigo_acesso,'ok')}
+}
+
+function bpVoltarSalas(){bpSalaAtual=null;bpShowTela('salas')}
+
+function bpShowSub(sub,btn){
+  document.querySelectorAll('.bp-sub-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('bps-palpites').style.display=sub==='palpites'?'block':'none';
+  document.getElementById('bps-ranking').style.display=sub==='ranking'?'block':'none';
+  if(sub==='ranking') bpLoadRanking();
+}
+
+async function bpLoadPalpites(){
+  const c=document.getElementById('bps-palpites');
+  c.innerHTML='<div class="bp-loading"><div class="spinner"></div><div>Carregando jogos...</div></div>';
+  const{data:jogos}=await sbR.from('jogos').select('*').order('data_hora');
+  bpJogos=jogos||[];
+  if(bpJogos.length&&bpProfile){
+    const ids=bpJogos.map(j=>j.id);
+    const{data:pals}=await sbR.from('palpites').select('*').eq('user_id',bpProfile.id).in('jogo_id',ids);
+    bpMeusPalpites={};(pals||[]).forEach(p=>bpMeusPalpites[p.jogo_id]=p);
+  }
+  if(!bpJogos.length){
+    c.innerHTML='<div class="bp-empty">Nenhum jogo cadastrado ainda.<br>Os palpites abrem antes de cada kickoff.<br><br>⚽</div>';
+    return;
+  }
+  const now=new Date();
+  const abertos=bpJogos.filter(j=>new Date(j.data_hora)>now&&j.status!=='encerrado');
+  const fechados=bpJogos.filter(j=>new Date(j.data_hora)<=now||j.status==='encerrado');
+  let html='';
+  if(abertos.length) html+=`<div style="font-family:'Anton',sans-serif;font-size:.75rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:12px">⚽ Abertos para palpite</div>`+abertos.map(j=>bpPalpiteCard(j,false)).join('');
+  if(fechados.length) html+=`<div style="font-family:'Anton',sans-serif;font-size:.75rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin:20px 0 12px">🔒 Palpites fechados</div>`+fechados.map(j=>bpPalpiteCard(j,true)).join('');
+  c.innerHTML=html;
+}
+
+function bpPalpiteCard(j,locked){
+  const kickoff=new Date(j.data_hora);
+  const dtStr=kickoff.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})+' '+kickoff.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  const p=bpMeusPalpites[j.id];
+  const savedHtml=p?`<div class="bpp-saved">Seu palpite: <strong>${p.placar_casa} × ${p.placar_fora}</strong>${p.calculado?`<span class="bpp-pts">${p.pontos} pts</span>`:' · aguardando resultado'}</div>`:'';
+  const inputHtml=!locked?`<div class="bpp-inputs">
+    <input type="number" min="0" max="99" id="pc-${j.id}" class="bpp-inp" value="${p!=null?p.placar_casa:''}" placeholder="0">
+    <span class="bpp-sep">×</span>
+    <input type="number" min="0" max="99" id="pf-${j.id}" class="bpp-inp" value="${p!=null?p.placar_fora:''}" placeholder="0">
+    <button class="bp-btn-cravar" onclick="bpSalvarPalpite('${j.id}')">${p?'Atualizar':'Cravar'}</button>
+  </div>`:'';
+  return `<div class="bp-palpite-card${locked?' locked':''}">
+    <div class="bpp-header">
+      <span class="bpp-teams">${escHtml(j.time_casa)} × ${escHtml(j.time_fora)}</span>
+      <span class="bpp-fase">${escHtml(j.fase||'')}</span>
+      <span class="bpp-data">${dtStr}${locked?' · <span class="bpp-locked-tag">🔒 FECHADO</span>':''}</span>
+    </div>
+    ${inputHtml}${savedHtml}
+  </div>`;
+}
+
+async function bpSalvarPalpite(jogoId){
+  const casa=parseInt(document.getElementById('pc-'+jogoId)?.value);
+  const fora=parseInt(document.getElementById('pf-'+jogoId)?.value);
+  if(isNaN(casa)||isNaN(fora)){toast('Digite os dois placares','err');return}
+  const jogo=bpJogos.find(j=>j.id===jogoId);
+  if(!jogo||new Date()>=new Date(jogo.data_hora)){toast('Palpite fechado! Jogo já começou.','err');return}
+  const existing=bpMeusPalpites[jogoId];
+  let error;
+  if(existing){({error}=await sbR.from('palpites').update({placar_casa:casa,placar_fora:fora}).eq('id',existing.id))}
+  else{({error}=await sbR.from('palpites').insert({user_id:bpProfile.id,jogo_id:jogoId,placar_casa:casa,placar_fora:fora}))}
+  if(error){toast('Erro: '+error.message,'err');return}
+  bpMeusPalpites[jogoId]={...bpMeusPalpites[jogoId],placar_casa:casa,placar_fora:fora};
+  toast('Palpite cravado! 🎯','ok');
+  await bpLoadPalpites();
+}
+
+async function bpLoadRanking(){
+  const c=document.getElementById('bps-ranking');
+  if(!bpSalaAtual){c.innerHTML='<div class="bp-empty">Selecione uma sala primeiro.</div>';return}
+  c.innerHTML='<div class="bp-loading"><div class="spinner"></div><div>Calculando...</div></div>';
+  const{data:membros}=await sbR.from('membros_bolao').select('user_id,profiles(nome)').eq('bolao_id',bpSalaAtual.id);
+  if(!membros?.length){c.innerHTML='<div class="bp-empty">Nenhum membro nessa sala ainda.</div>';return}
+  const ranking=[];
+  for(const m of membros){
+    const{data:pals}=await sbR.from('palpites').select('pontos,calculado').eq('user_id',m.user_id);
+    const total=(pals||[]).filter(p=>p.calculado).reduce((s,p)=>s+(p.pontos||0),0);
+    ranking.push({user_id:m.user_id,nome:m.profiles?.nome||'???',pontos:total});
+  }
+  ranking.sort((a,b)=>b.pontos-a.pontos);
+  const n=ranking.length;
+  c.innerHTML=`<div class="bp-ranking-list">${ranking.map((r,i)=>{
+    const isMe=r.user_id===bpProfile?.id;
+    return`<div class="bp-rank-row${isMe?' me':''}">
+      <div class="bp-rank-pos">${bpRankLabel(i,n)}</div>
+      <div class="bp-rank-nome">${escHtml(r.nome)}${isMe?' <span class="bp-you">(você)</span>':''}</div>
+      <div class="bp-rank-pts">${r.pontos}<small>pts</small></div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+function bpRankLabel(i,n){
+  if(i===0) return'🏆 Craque do Palpite';
+  if(i<=2) return'😤 Tá chegando lá';
+  if(i<Math.floor(n*.3)) return'😐 Nem ganhou nem perdeu, igual o Brasil';
+  if(i<n-1) return'😬 Ainda acredita, coitado';
+  return'💀 Amigo, desiste';
+}
+
+function calcularPontos(pC,pF,rC,rF){
+  if(pC===rC&&pF===rF) return 3;
+  if(Math.sign(pC-pF)===Math.sign(rC-rF)) return 1;
+  return 0;
 }
 
 /* ── TOAST ── */

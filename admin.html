@@ -227,6 +227,9 @@ label{display:block;font-family:'Anton',sans-serif;font-size:.8rem;text-transfor
     <button onclick="showSection('novo',this)">
       + Novo
     </button>
+    <button onclick="showSection('resultados',this)">
+      ⚽ Jogos
+    </button>
   </nav>
 
   <div class="content">
@@ -249,6 +252,35 @@ label{display:block;font-family:'Anton',sans-serif;font-size:.8rem;text-transfor
     <div id="sec-rejeitados" class="section" style="display:none">
       <div id="listRejeitados">
         <div class="loading-state"><div class="spinner"></div><div>Carregando...</div></div>
+      </div>
+    </div>
+
+    <!-- JOGOS / RESULTADOS -->
+    <div id="sec-resultados" class="section" style="display:none">
+      <div class="form-section" style="margin-bottom:28px">
+        <div style="position:absolute;top:-14px;left:18px;background:var(--azul);color:var(--cream);font-family:'Bungee',sans-serif;font-size:.78rem;letter-spacing:3px;padding:3px 14px;border:2px solid var(--ink)">NOVO JOGO</div>
+        <div class="form-grid">
+          <div><label>Time Casa</label><input type="text" class="form-input" id="jTimeCasa" placeholder="Brasil"></div>
+          <div><label>Time Fora</label><input type="text" class="form-input" id="jTimeFora" placeholder="Argentina"></div>
+          <div><label>Data / Hora</label><input type="datetime-local" class="form-input" id="jDataHora"></div>
+          <div><label>Fase</label>
+            <select class="form-select" id="jFase">
+              <option value="Fase de Grupos">Fase de Grupos</option>
+              <option value="16 avos de Final">16 avos de Final</option>
+              <option value="Oitavas de Final">Oitavas de Final</option>
+              <option value="Quartas de Final">Quartas de Final</option>
+              <option value="Semifinal">Semifinal</option>
+              <option value="3° Lugar">3° Lugar</option>
+              <option value="FINAL">FINAL</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-primary" onclick="adminCriarJogo()">Criar Jogo</button>
+        </div>
+      </div>
+      <div id="listResultados">
+        <div class="loading-state"><div class="spinner"></div><div>Carregando jogos...</div></div>
       </div>
     </div>
 
@@ -350,7 +382,7 @@ function doLogout(){
 
 /* ── INIT ── */
 async function init(){
-  await loadAll();
+  await Promise.all([loadAll(), loadJogos()]);
   setupRealtime();
   renderSection(currentSection);
 }
@@ -382,7 +414,8 @@ function showSection(sec,btn){
   document.querySelectorAll('.admin-nav button').forEach(b=>b.classList.remove('active'));
   document.getElementById('sec-'+sec).style.display='block';
   btn.classList.add('active');
-  if(sec!=='novo') renderSection(sec);
+  if(sec==='resultados') loadJogos();
+  else if(sec!=='novo') renderSection(sec);
 }
 
 function renderSection(sec){
@@ -526,6 +559,110 @@ function limparForm(){
   document.getElementById('fPlacarFora').value='';
   document.getElementById('fFase').value='';
   document.getElementById('fStatus').value='pendente';
+}
+
+/* ── JOGOS / RESULTADOS ── */
+let allJogos=[];
+
+async function loadJogos(){
+  const{data,error}=await sb.from('jogos').select('*').order('data_hora');
+  if(error){toast('Erro ao carregar jogos: '+error.message,'err');return}
+  allJogos=data||[];
+  renderJogos();
+}
+
+function renderJogos(){
+  const el=document.getElementById('listResultados');
+  if(!el) return;
+  if(!allJogos.length){el.innerHTML='<div class="empty-state">Nenhum jogo cadastrado ainda.<br>Cria um acima para testar o bolão.</div>';return}
+  el.innerHTML=allJogos.map(j=>adminJogoCard(j)).join('');
+}
+
+function adminJogoCard(j){
+  const dt=new Date(j.data_hora);
+  const dtStr=dt.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})+' '+dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  const placar=j.placar_casa!==null&&j.placar_fora!==null?`${j.placar_casa} × ${j.placar_fora}`:'– × –';
+  const cls=j.status==='encerrado'?'publicado':j.status==='ao_vivo'?'pendente':'';
+  const stCls={'agendado':'status-pendente','ao_vivo':'status-pendente','encerrado':'status-publicado'}[j.status]||'';
+  return`<div class="admin-card ${cls}">
+    <div class="ac-header">
+      <div class="ac-title">${escHtml(j.time_casa)} × ${escHtml(j.time_fora)}</div>
+      <div class="ac-meta">
+        <span class="ac-status ${stCls}">${j.status}</span>
+        <span class="ac-date">${dtStr}</span>
+      </div>
+    </div>
+    <div class="ac-game">
+      <span class="ac-score">${placar}</span>
+      ${j.fase?`<span class="ac-fase">${escHtml(j.fase)}</span>`:''}
+    </div>
+    <div class="ac-footer" style="align-items:center">
+      <select class="form-select" id="jst-${j.id}" style="max-width:180px;padding:8px 10px;font-size:.82rem">
+        <option value="agendado"${j.status==='agendado'?' selected':''}>🕐 Agendado</option>
+        <option value="ao_vivo"${j.status==='ao_vivo'?' selected':''}>🔴 Ao Vivo</option>
+        <option value="encerrado"${j.status==='encerrado'?' selected':''}>✅ Encerrado</option>
+      </select>
+      <input type="number" class="score-inp" id="jpc-${j.id}" value="${j.placar_casa??''}" placeholder="C" min="0" max="99">
+      <span class="score-sep">×</span>
+      <input type="number" class="score-inp" id="jpf-${j.id}" value="${j.placar_fora??''}" placeholder="F" min="0" max="99">
+      <button class="btn-approve" onclick="adminConfirmarResultado('${j.id}')">✓ Confirmar</button>
+      <button class="btn-delete" onclick="adminDeletarJogo('${j.id}')">🗑</button>
+    </div>
+  </div>`;
+}
+
+async function adminCriarJogo(){
+  const timeCasa=document.getElementById('jTimeCasa').value.trim();
+  const timeFora=document.getElementById('jTimeFora').value.trim();
+  const dataHora=document.getElementById('jDataHora').value;
+  const fase=document.getElementById('jFase').value;
+  if(!timeCasa||!timeFora||!dataHora){toast('Preenche todos os campos','err');return}
+  const{error}=await sb.from('jogos').insert({time_casa:timeCasa,time_fora:timeFora,data_hora:new Date(dataHora).toISOString(),fase,status:'agendado'});
+  if(error){toast('Erro: '+error.message,'err');return}
+  toast('Jogo criado!','ok');
+  document.getElementById('jTimeCasa').value='';
+  document.getElementById('jTimeFora').value='';
+  document.getElementById('jDataHora').value='';
+  await loadJogos();
+}
+
+async function adminConfirmarResultado(jogoId){
+  const status=document.getElementById('jst-'+jogoId)?.value;
+  const rCasaStr=document.getElementById('jpc-'+jogoId)?.value;
+  const rForaStr=document.getElementById('jpf-'+jogoId)?.value;
+  const rCasa=parseInt(rCasaStr);
+  const rFora=parseInt(rForaStr);
+  const upd={status};
+  if(!isNaN(rCasa)&&!isNaN(rFora)){upd.placar_casa=rCasa;upd.placar_fora=rFora}
+  const{error:jogoErr}=await sb.from('jogos').update(upd).eq('id',jogoId);
+  if(jogoErr){toast('Erro ao atualizar jogo: '+jogoErr.message,'err');return}
+  if(status==='encerrado'&&!isNaN(rCasa)&&!isNaN(rFora)){
+    const{data:palpites}=await sb.from('palpites').select('*').eq('jogo_id',jogoId).eq('calculado',false);
+    let calculados=0;
+    for(const p of palpites||[]){
+      const pontos=calcularPontos(p.placar_casa,p.placar_fora,rCasa,rFora);
+      await sb.from('palpites').update({pontos,calculado:true}).eq('id',p.id);
+      calculados++;
+    }
+    toast(`✓ ${calculados} palpite(s) calculado(s)!`,'ok');
+  }else{
+    toast('Status atualizado!','ok');
+  }
+  await loadJogos();
+}
+
+async function adminDeletarJogo(id){
+  if(!confirm('Deletar jogo? Palpites associados também serão removidos.')) return;
+  const{error}=await sb.from('jogos').delete().eq('id',id);
+  if(error){toast('Erro: '+error.message,'err');return}
+  toast('Jogo deletado.','ok');
+  await loadJogos();
+}
+
+function calcularPontos(pC,pF,rC,rF){
+  if(pC===rC&&pF===rF) return 3;
+  if(Math.sign(pC-pF)===Math.sign(rC-rF)) return 1;
+  return 0;
 }
 
 /* ── UTILS ── */
