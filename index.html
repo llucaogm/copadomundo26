@@ -693,7 +693,7 @@ async function slLoadProfile(){
 function slShowApp(){
   document.getElementById('siteLoginOverlay').style.display='none';
   document.getElementById('siteApp').style.display='block';
-  init();
+  try{init()}catch(e){console.error('init error:',e)}
 }
 
 function slShowOverlay(){
@@ -711,23 +711,31 @@ function slSwitchTab(tab,btn){
 async function slLogin(){
   const btn=document.getElementById('slLoginBtn');
   const msg=document.getElementById('slLoginMsg');
-  const email=document.getElementById('slEmail').value.trim().toLowerCase();
-  const senha=document.getElementById('slSenha').value;
+  const email=(document.getElementById('slEmail').value||'').trim().toLowerCase();
+  const senha=document.getElementById('slSenha').value||'';
   msg.textContent='';
   if(!email||!senha){msg.style.color='var(--vermelho)';msg.textContent='Preenche email e senha.';return}
   btn.disabled=true;btn.textContent='Entrando...';
-  const{data,error}=await sbR.auth.signInWithPassword({email,password:senha});
-  if(error){
-    msg.style.color='var(--vermelho)';
-    msg.textContent=error.message.toLowerCase().includes('invalid')?'Email ou senha incorretos.':'Erro: '+error.message;
+  try{
+    const{data,error}=await sbR.auth.signInWithPassword({email,password:senha});
+    if(error){
+      const m=error.message||'';
+      msg.style.color='var(--vermelho)';
+      msg.textContent=m.toLowerCase().includes('invalid')||m.toLowerCase().includes('credentials')?'Email ou senha incorretos.':'Erro: '+m;
+      btn.disabled=false;btn.textContent='Entrar';
+      return;
+    }
+    if(data?.user){
+      currentUser=data.user;
+      try{await slLoadProfile()}catch(pe){console.warn('Profile load error:',pe)}
+      slShowApp();
+    }else{
+      msg.style.color='var(--vermelho)';msg.textContent='Login falhou. Tente novamente.';
+      btn.disabled=false;btn.textContent='Entrar';
+    }
+  }catch(e){
+    msg.style.color='var(--vermelho)';msg.textContent='Erro inesperado: '+(e.message||e);
     btn.disabled=false;btn.textContent='Entrar';
-    return;
-  }
-  // Sucesso — trata diretamente sem esperar onAuthStateChange
-  if(data?.user){
-    currentUser=data.user;
-    await slLoadProfile();
-    slShowApp();
   }
 }
 
