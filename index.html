@@ -660,22 +660,27 @@ function fimg(team,sz){
 }
 
 async function init(){
-  await Promise.all([loadAll(), loadResumaes()]);
+  const deadline=new Promise(r=>setTimeout(r,4000));
+  await Promise.all([Promise.race([loadAll(),deadline]), loadResumaes()]);
   setupRealtime();
   renderAll();
 }
 
 async function loadAll(){
-  const [tr,gr,vr,mr]=await Promise.all([
-    sb.from('wc_teams').select('*'),
-    sb.from('wc_groups').select('*'),
-    sb.from('wc_venues').select('*'),
-    sb.from('wc_matches').select('*').order('match_number')
-  ]);
-  teams={}; (tr.data||[]).forEach(t=>teams[t.id]=t);
-  groups={}; (gr.data||[]).forEach(g=>groups[g.id]=g);
-  venues={}; (vr.data||[]).forEach(v=>venues[v.id]=v);
-  matches=mr.data||[];
+  try{
+    const [tr,gr,vr,mr]=await Promise.all([
+      sb.from('wc_teams').select('*'),
+      sb.from('wc_groups').select('*'),
+      sb.from('wc_venues').select('*'),
+      sb.from('wc_matches').select('*').order('match_number')
+    ]);
+    teams={}; (tr.data||[]).forEach(t=>teams[t.id]=t);
+    groups={}; (gr.data||[]).forEach(g=>groups[g.id]=g);
+    venues={}; (vr.data||[]).forEach(v=>venues[v.id]=v);
+    matches=mr.data||[];
+  }catch(e){
+    console.warn('Dados de grupos indisponíveis (projeto pausado).',e);
+  }
 }
 
 async function loadResumaes(){
