@@ -431,6 +431,8 @@ h2.sec-title{
 .bp-you{font-family:'Special Elite',monospace;font-size:.72rem;color:var(--azul);text-transform:none;letter-spacing:0;font-style:italic;font-weight:normal}
 .bp-rank-pts{font-family:'Bungee',sans-serif;font-size:1.1rem;color:var(--vermelho);text-align:right;white-space:nowrap;flex-shrink:0}
 .bp-rank-pts small{font-family:'Anton',sans-serif;font-size:.68rem;color:var(--muted);display:block;letter-spacing:1px}
+.bp-link-btn{background:none;border:none;color:var(--azul);font-family:'Special Elite',monospace;font-size:.82rem;cursor:pointer;padding:6px 0;text-decoration:underline;display:block;text-align:left}
+.bp-link-btn:hover{color:var(--vermelho)}
 @media(max-width:600px){.bp-rank-pos{flex-basis:auto;font-size:.72rem}.bp-salas-grid{grid-template-columns:1fr}}
 </style>
 </head>
@@ -531,14 +533,28 @@ h2.sec-title{
     <p class="sec-sub">Palpite · pontua · compete com os amigos</p>
 
     <div id="bp-login">
-      <div class="bp-salas-grid" style="max-width:420px">
+      <div class="bp-salas-grid" style="max-width:660px">
+
         <div class="bp-card">
-          <div class="bp-card-title">🎯 Entre pro Bolão</div>
-          <p class="bp-card-sub">Sem senha, sem frescura. Só o email.</p>
-          <input type="email" id="bpEmail" class="bp-input" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')bpMagicLink()">
-          <button class="bp-btn-primary" id="bpLoginBtn" onclick="bpMagicLink()">Entrar com magic link</button>
+          <div class="bp-card-title">🎯 Entrar</div>
+          <p class="bp-card-sub">Já tem conta? É só entrar.</p>
+          <input type="email" id="bpLoginEmail" class="bp-input" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')bpLogin()">
+          <input type="password" id="bpLoginSenha" class="bp-input" placeholder="Senha" onkeydown="if(event.key==='Enter')bpLogin()">
+          <button class="bp-btn-primary" id="bpLoginBtn" onclick="bpLogin()">Entrar</button>
+          <button class="bp-link-btn" onclick="bpEsqueciSenha()">Esqueci a senha</button>
           <div id="bpLoginMsg" class="bp-msg"></div>
         </div>
+
+        <div class="bp-card">
+          <div class="bp-card-title">✏️ Criar conta</div>
+          <p class="bp-card-sub">Primeira vez? Cria aqui e já entra.</p>
+          <input type="text" id="bpRegNome" class="bp-input" placeholder="Seu nome no ranking" maxlength="30" onkeydown="if(event.key==='Enter')bpRegister()">
+          <input type="email" id="bpRegEmail" class="bp-input" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')bpRegister()">
+          <input type="password" id="bpRegSenha" class="bp-input" placeholder="Cria uma senha (mín. 6 caracteres)" onkeydown="if(event.key==='Enter')bpRegister()">
+          <button class="bp-btn-primary" id="bpRegBtn" onclick="bpRegister()">Criar conta</button>
+          <div id="bpRegMsg" class="bp-msg"></div>
+        </div>
+
       </div>
     </div>
 
@@ -1013,7 +1029,7 @@ async function bpLoadProfile(){
   if(data){
     bpProfile=data;
   }else{
-    const nome=prompt('Como você quer aparecer no ranking?')||bpUser.email.split('@')[0]||'Anônimo';
+    const nome=bpUser.user_metadata?.nome||bpUser.email.split('@')[0]||'Anônimo';
     const{data:np}=await sbR.from('profiles').insert({id:bpUser.id,nome}).select().maybeSingle();
     bpProfile=np||{id:bpUser.id,nome};
   }
@@ -1021,21 +1037,52 @@ async function bpLoadProfile(){
   if(el) el.textContent=bpProfile?.nome||bpUser.email;
 }
 
-async function bpMagicLink(){
+async function bpLogin(){
   const btn=document.getElementById('bpLoginBtn');
   const msg=document.getElementById('bpLoginMsg');
-  const email=document.getElementById('bpEmail').value.trim().toLowerCase();
-  if(!email||!email.includes('@')){msg.textContent='Email inválido, véi.';return}
-  btn.disabled=true;btn.textContent='Enviando...';msg.textContent='';
-  const{error}=await sbR.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname}});
+  const email=document.getElementById('bpLoginEmail').value.trim().toLowerCase();
+  const senha=document.getElementById('bpLoginSenha').value;
+  msg.textContent='';
+  if(!email||!senha){msg.style.color='var(--vermelho)';msg.textContent='Preenche email e senha.';return}
+  btn.disabled=true;btn.textContent='Entrando...';
+  const{error}=await sbR.auth.signInWithPassword({email,password:senha});
   if(error){
-    msg.style.color='var(--vermelho)';msg.textContent='Erro: '+error.message;
-    btn.disabled=false;btn.textContent='Entrar com magic link';
+    msg.style.color='var(--vermelho)';
+    msg.textContent=error.message.toLowerCase().includes('invalid')?'Email ou senha incorretos.':'Erro: '+error.message;
+    btn.disabled=false;btn.textContent='Entrar';
+  }
+  // Sucesso: onAuthStateChange cuida do resto
+}
+
+async function bpRegister(){
+  const btn=document.getElementById('bpRegBtn');
+  const msg=document.getElementById('bpRegMsg');
+  const nome=document.getElementById('bpRegNome').value.trim();
+  const email=document.getElementById('bpRegEmail').value.trim().toLowerCase();
+  const senha=document.getElementById('bpRegSenha').value;
+  msg.textContent='';
+  if(!nome){msg.style.color='var(--vermelho)';msg.textContent='Coloca seu nome.';return}
+  if(!email||!email.includes('@')){msg.style.color='var(--vermelho)';msg.textContent='Email inválido.';return}
+  if(senha.length<6){msg.style.color='var(--vermelho)';msg.textContent='Senha precisa ter pelo menos 6 caracteres.';return}
+  btn.disabled=true;btn.textContent='Criando...';
+  const{error}=await sbR.auth.signUp({email,password:senha,options:{data:{nome}}});
+  if(error){
+    msg.style.color='var(--vermelho)';
+    msg.textContent=error.message.toLowerCase().includes('already')?'Email já cadastrado. Faz login.':'Erro: '+error.message;
+    btn.disabled=false;btn.textContent='Criar conta';
   }else{
     msg.style.color='var(--verde-d)';
-    msg.textContent='✓ Link enviado pro seu email. Abre e clica.';
-    btn.textContent='Link enviado!';
+    msg.textContent='✓ Conta criada! Confirma o email se precisar, depois entra.';
+    btn.textContent='Feito!';
   }
+}
+
+async function bpEsqueciSenha(){
+  const email=document.getElementById('bpLoginEmail').value.trim().toLowerCase();
+  const msg=document.getElementById('bpLoginMsg');
+  if(!email){msg.style.color='var(--vermelho)';msg.textContent='Digite seu email acima primeiro.';return}
+  await sbR.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});
+  msg.style.color='var(--verde-d)';msg.textContent='✓ Link de recuperação enviado!';
 }
 
 async function bpLogout(){
