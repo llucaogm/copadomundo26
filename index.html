@@ -716,11 +716,18 @@ async function slLogin(){
   msg.textContent='';
   if(!email||!senha){msg.style.color='var(--vermelho)';msg.textContent='Preenche email e senha.';return}
   btn.disabled=true;btn.textContent='Entrando...';
-  const{error}=await sbR.auth.signInWithPassword({email,password:senha});
+  const{data,error}=await sbR.auth.signInWithPassword({email,password:senha});
   if(error){
     msg.style.color='var(--vermelho)';
     msg.textContent=error.message.toLowerCase().includes('invalid')?'Email ou senha incorretos.':'Erro: '+error.message;
     btn.disabled=false;btn.textContent='Entrar';
+    return;
+  }
+  // Sucesso — trata diretamente sem esperar onAuthStateChange
+  if(data?.user){
+    currentUser=data.user;
+    await slLoadProfile();
+    slShowApp();
   }
 }
 
